@@ -1,0 +1,46 @@
+.can-flight {
+	position: fixed;
+	left: 0;
+	top: 0;
+	width: 0;
+	height: 0;
+	margin: 0;
+	padding: 0;
+	opacity: 0;
+	/* Abaixo da UI do hero (setas z70, sizes/header z45) — JS sobe/desce no scroll */
+	z-index: 28;
+	pointer-events: none;
+	overflow: visible;
+	transform: translate3d(0, 0, 0) scale(1);
+	transform-origin: center center;
+	will-change: transform, opacity;
+	backface-visibility: hidden;
+}
+
+.can-flight .hero__can-canvas {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	overflow: visible;
+}
+
+/* Garante que o WebGL não clippe a lata durante o scale CSS */
+.can-flight canvas {
+	overflow: visible !important;
+}
+
+/*
+ * R3F mede o container com getBoundingClientRect, que já inclui o scale() do
+ * layer — sem isso ele encolhe o canvas por cima do scale (encolhimento duplo,
+ * ancorado no canto superior esquerdo) e a lata desencaixa do card.
+ */
+.can-flight .hero__can-canvas canvas {
+	width: 100% !important;
+	height: 100% !important;
+}
+
+.can-flight[data-docked='true'] {
+	/* Abaixo da máscara do card (can-mask-container z6) para ser mascarada no fundo */
+	z-index: 5;
+}

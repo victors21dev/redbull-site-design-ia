@@ -1,0 +1,890 @@
+---
+const benefits = [
+	{
+		title: 'Mantenha o foco',
+		text: 'O Red Bull contém cafeína que ajuda a melhorar a concentração e aumentar o estado de alerta.',
+	},
+	{
+		title: 'Reduza a fadiga',
+		text: 'O Red Bull contém vitaminas do complexo B (niacina, ácido pantotênico, B6 e B12), que contribuem para a redução do cansaço e da fadiga.',
+	},
+	{
+		title: 'Energia para o dia',
+		text: 'O Red Bull contém açúcar, uma forma de carboidrato de rápida absorção envolvida em diversos processos biológicos e uma fonte de energia para o cérebro e os músculos.',
+	},
+] as const;
+
+const sizes = ['250 ml', '355 ml'] as const;
+---
+
+<section
+	id="product-details"
+	class="product-stage"
+	aria-label="Benefícios e ingredientes"
+	style="--scheme-background: #3D4180; --scheme-can-shadow-rgb: 61 65 128; --square-background: #3D4180;"
+>
+	<div class="product-stage__inner">
+		<!-- Benefits (row 1, content right) -->
+		<div class="benefits" data-benefits>
+			<div class="benefits__inner" data-benefits-inner>
+				<div class="benefits__layout">
+					<div class="benefits__content" data-benefits-content>
+						<header class="teaser" data-reveal>
+							<p class="teaser__kicker">Benefícios</p>
+							<h2 class="teaser__title">Red&nbsp;Bull te dá asas</h2>
+						</header>
+
+						<ul class="benefits__list" role="list">
+							{
+								benefits.map((benefit) => (
+									<li class="benefits__item" data-reveal>
+										<p class="benefits__point-title">{benefit.title}</p>
+										<p class="benefits__point-text">{benefit.text}</p>
+									</li>
+								))
+							}
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Ingredients (row 2, content right) -->
+		<div class="ingredients" data-ingredients>
+			<div class="ingredients__inner">
+				<div class="ingredients__layout">
+					<div class="ingredients__content">
+						<div class="ingredients__sticky">
+							<header class="teaser" data-reveal>
+								<p class="teaser__kicker">Ingredientes</p>
+								<h2 class="teaser__title">A fórmula que te dá asas</h2>
+							</header>
+
+							<div class="teaser__body" data-reveal>
+								<p class="teaser__text">
+									A fórmula do Red&nbsp;Bull contém uma combinação única de
+									ingredientes de alta qualidade.
+								</p>
+							</div>
+
+							<div class="product-sizes" data-reveal>
+								<div class="product-sizes__label">
+									<svg
+										class="product-sizes__icon"
+										viewBox="0 0 20 20"
+										aria-hidden="true"
+										focusable="false"
+									>
+										<path
+											fill="currentColor"
+											d="M10 1.75a8.25 8.25 0 1 0 0 16.5 8.25 8.25 0 0 0 0-16.5ZM9.25 6.5a.75.75 0 0 1 1.5 0v.5a.75.75 0 0 1-1.5 0v-.5Zm0 3.25a.75.75 0 0 1 1.5 0v4a.75.75 0 0 1-1.5 0v-4Z"
+										></path>
+									</svg>
+									<p>Tamanhos disponíveis:</p>
+								</div>
+								<ul class="product-sizes__list" role="list">
+									{
+										sizes.map((size) => (
+											<li>
+												<span class="product-sizes__badge">{size}</span>
+											</li>
+										))
+									}
+								</ul>
+							</div>
+
+							<div class="ingredients__cta" data-reveal>
+								<a class="ingredients__button" href="#ingredients-list">Ver ingredientes</a>
+							</div>
+						</div>
+						<div class="ingredients__spacer" data-ingredients-spacer aria-hidden="true"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Orange card (left, sticky) -->
+		<div class="square-container" aria-hidden="true">
+			<div class="square-sticky">
+				<div
+					class="square"
+					data-ingredient-square
+					style="height: 38.3858%; max-width: 48.913%;"
+				>
+				</div>
+			</div>
+		</div>
+
+		<!-- Dock da lata 3D (left, sticky) — CanFlight encaixa aqui -->
+		<div class="can-container" aria-hidden="true">
+			<div class="can-sticky">
+				<div class="can-picture">
+					<div class="can-dock" data-can-slot="dock"></div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Mask that hides can below the orange card while it grows -->
+		<div class="can-mask-container" aria-hidden="true">
+			<div class="can-mask-sticky">
+				<div class="can-mask-spacer"></div>
+				<div
+					class="can-mask-square"
+					data-can-mask-square
+					style="height: 38.3858%; max-width: 48.913%;"
+				>
+				</div>
+				<div class="can-mask" data-can-flight-mask-source></div>
+			</div>
+		</div>
+
+		<!-- Mobile dock (visible < 1000px) -->
+		<div class="can-mobile" aria-hidden="true">
+			<div class="can-mobile__card">
+				<div class="can-mobile__dock" data-can-slot="dock"></div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<script>
+	import gsap from 'gsap';
+	import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+	gsap.registerPlugin(ScrollTrigger);
+
+	const STAGE_SELECTOR = '.product-stage';
+	let ctx: gsap.Context | null = null;
+
+	function initStage() {
+		const root = document.querySelector(STAGE_SELECTOR);
+		if (!root) return;
+
+		ctx?.revert();
+		ctx = null;
+
+		const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		const benefitsInner = root.querySelector<HTMLElement>('[data-benefits-inner]');
+		const benefitsContent = root.querySelector<HTMLElement>('[data-benefits-content]');
+		const ingredientSquare = root.querySelector<HTMLElement>('[data-ingredient-square]');
+		const canMaskSquare = root.querySelector<HTMLElement>('[data-can-mask-square]');
+		const revealNodes = root.querySelectorAll<HTMLElement>('[data-reveal]');
+
+		ctx = gsap.context(() => {
+			const mm = gsap.matchMedia();
+
+			mm.add('(width >= 1000px)', () => {
+				if (reduceMotion) {
+					if (ingredientSquare) {
+						gsap.set(ingredientSquare, { maxWidth: '100%', height: '100%' });
+						ingredientSquare.setAttribute('data-hide-corners', 'true');
+					}
+					if (canMaskSquare) gsap.set(canMaskSquare, { maxWidth: '100%', height: '100%' });
+					revealNodes.forEach((node) => node.setAttribute('data-visible', 'true'));
+					return;
+				}
+
+				// Benefits reveal (title + each point)
+				if (benefitsContent) {
+					const groups: { trigger: Element; target: Element }[] = [];
+					const heading = benefitsContent.querySelector('.teaser');
+					if (heading) groups.push({ trigger: heading, target: heading });
+
+					benefitsContent.querySelectorAll('.benefits__item').forEach((item) => {
+						groups.push({ trigger: item, target: item });
+					});
+
+					groups.forEach(({ trigger, target }) => {
+						gsap.fromTo(
+							target,
+							{ autoAlpha: 0, y: '100%' },
+							{
+								autoAlpha: 1,
+								y: 0,
+								duration: 0.5,
+								ease: 'power1.out',
+								scrollTrigger: {
+									trigger,
+									start: 'top 75%',
+									toggleActions: 'play none none reverse',
+								},
+							},
+						);
+					});
+				}
+
+				// Ingredients text reveals
+				root.querySelectorAll('.ingredients [data-reveal]').forEach((node) => {
+					gsap.fromTo(
+						node,
+						{ autoAlpha: 0, y: '40%' },
+						{
+							autoAlpha: 1,
+							y: 0,
+							duration: 0.5,
+							ease: 'power1.out',
+							scrollTrigger: {
+								trigger: node,
+								start: 'top 80%',
+								toggleActions: 'play none none reverse',
+							},
+						},
+					);
+				});
+
+				// Hide orange corners near end of benefits
+				if (benefitsInner && ingredientSquare) {
+					ScrollTrigger.create({
+						trigger: benefitsInner,
+						start: 'bottom top+=10%',
+						toggleActions: 'play none none reverse',
+						onEnter: () => ingredientSquare.setAttribute('data-hide-corners', 'true'),
+						onLeaveBack: () => ingredientSquare.removeAttribute('data-hide-corners'),
+					});
+				}
+
+				// Orange card + mask grow while scrolling benefits
+				if (benefitsInner && ingredientSquare && canMaskSquare) {
+					const tl = gsap.timeline({
+						scrollTrigger: {
+							trigger: benefitsInner,
+							start: 'center center',
+							end: 'bottom top',
+							scrub: true,
+						},
+					});
+					tl.to(ingredientSquare, {
+						maxWidth: '100%',
+						height: '100%',
+						ease: 'none',
+						duration: 0.5,
+					});
+					tl.to(
+						canMaskSquare,
+						{ maxWidth: '100%', height: '100%', ease: 'none', duration: 0.5 },
+						'<',
+					);
+				}
+			});
+
+			// Mobile / reduced: simple fade reveals
+			mm.add('(width < 1000px)', () => {
+				revealNodes.forEach((node) => {
+					if (reduceMotion) {
+						node.setAttribute('data-visible', 'true');
+						return;
+					}
+					gsap.fromTo(
+						node,
+						{ autoAlpha: 0, y: 32 },
+						{
+							autoAlpha: 1,
+							y: 0,
+							duration: 0.45,
+							ease: 'power1.out',
+							scrollTrigger: {
+								trigger: node,
+								start: 'top 85%',
+								toggleActions: 'play none none reverse',
+							},
+						},
+					);
+				});
+			});
+		}, root);
+
+		ScrollTrigger.refresh();
+	}
+
+	initStage();
+	document.addEventListener('astro:page-load', initStage);
+	document.addEventListener('astro:before-swap', () => {
+		ctx?.revert();
+		ctx = null;
+	});
+</script>
+
+<style>
+	.product-stage {
+		--stage-text: #000f1e;
+		--stage-text-subtle: rgba(0, 15, 30, 0.6);
+		--stage-bg: #ffffff;
+		--stage-surface: #f8f8f8;
+		--stage-primary: #db0a40;
+		--stage-primary-darker: #c3093b;
+		--stage-max: 1472px;
+		--stage-sides: 24px;
+		--stage-font: 'Poppins', 'Avenir Next', Arial, sans-serif;
+		--stage-display: 'League Spartan', 'Montserrat', 'Arial Black', sans-serif;
+		--space-x-tight: 8px;
+		--space-normal: 16px;
+		--space-x-loose: 32px;
+		--space-xx-loose: 40px;
+		--space-xxx-loose: 64px;
+		--space-xxxx-loose: 80px;
+		--_can-shadow: var(--scheme-can-shadow-rgb, 103 58 5);
+		--can-subtle-shadow-values: 17px 15px 15px;
+		--can-subtle-shadow-alpha: 0.5;
+
+		position: relative;
+		width: 100%;
+		background: var(--stage-bg);
+		color: var(--stage-text);
+		font-family: var(--stage-font);
+		overflow: clip;
+	}
+
+	@media (width >= 650px) {
+		.product-stage {
+			--stage-sides: 40px;
+		}
+	}
+
+	@media (width >= 1000px) {
+		.product-stage {
+			--stage-sides: 64px;
+		}
+	}
+
+	.product-stage__inner {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		grid-template-rows: auto auto;
+		position: relative;
+		margin-inline: auto;
+		width: 100%;
+		max-width: none;
+	}
+
+	@media (width >= 1000px) {
+		.product-stage__inner {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	/* ——— Benefits ——— */
+	.benefits {
+		grid-row-start: 1;
+		grid-column: 1 / -1;
+		padding-inline: var(--stage-sides);
+		z-index: 2;
+	}
+
+	.benefits__inner,
+	.ingredients__inner {
+		margin-inline: auto;
+		width: 100%;
+		max-width: var(--stage-max);
+	}
+
+	.benefits__content,
+	.ingredients__content {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-xx-loose);
+		padding-block: var(--space-xxxx-loose);
+	}
+
+	@media (width >= 1000px) {
+		.benefits__inner {
+			display: flex;
+			min-height: 100vh;
+		}
+
+		.benefits__layout,
+		.ingredients__layout {
+			display: grid;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			align-items: center;
+			width: 100%;
+		}
+
+		.benefits__content,
+		.ingredients__content {
+			grid-column-start: 2;
+			padding-inline: var(--space-xx-loose);
+		}
+	}
+
+	/* ——— Ingredients ——— */
+	.ingredients {
+		grid-row-start: 2;
+		grid-column: 1 / -1;
+		padding-inline: var(--stage-sides);
+		z-index: 2;
+		position: relative;
+	}
+
+	@media (width >= 1000px) {
+		.ingredients {
+			min-height: 100vh;
+		}
+
+		.ingredients__layout {
+			display: grid;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			width: 100%;
+		}
+
+		.ingredients__content {
+			grid-column-start: 2;
+			display: flex;
+			flex-direction: column;
+			padding-inline: var(--space-xx-loose);
+			padding-top: var(--space-xxx-loose);
+			padding-bottom: var(--space-xxx-loose);
+		}
+
+		.ingredients__sticky {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			position: sticky;
+			top: 0;
+			min-height: 100vh;
+		}
+
+		.ingredients__spacer {
+			height: 30vh;
+			pointer-events: none;
+		}
+	}
+
+	/* ——— Orange square ——— */
+	.square-container {
+		display: none;
+	}
+
+	@media (width >= 1000px) {
+		.square-container {
+			display: block;
+			position: relative;
+			grid-row: 1 / -1;
+			grid-column: 1 / 2;
+			justify-self: end;
+			z-index: 4;
+			background: var(--stage-bg);
+			width: 100%;
+			max-width: calc(var(--stage-max) / 2);
+			pointer-events: none;
+		}
+
+		.square-sticky {
+			display: flex;
+			position: sticky;
+			top: 0;
+			justify-content: center;
+			align-items: center;
+			height: 100vh;
+		}
+
+		@media (width >= 1350px) {
+			.square-sticky {
+				padding-block: 32px;
+			}
+		}
+
+		.square {
+			--_square-background: var(--square-background, #3d4180);
+			width: 100%;
+			max-width: 360px;
+			height: 390px;
+			border-radius: 16px;
+			background-color: var(--_square-background);
+			transition:
+				border-radius 0.25s linear,
+				background-color 420ms cubic-bezier(0.22, 1, 0.36, 1);
+			will-change: width, height, transform;
+		}
+
+		.square[data-hide-corners='true'] {
+			border-radius: 0;
+		}
+	}
+
+	@media (width >= 1350px) {
+		.square[data-hide-corners='true'] {
+			border-radius: 16px;
+		}
+	}
+
+	/* ——— Can sticky ——— */
+	.can-container {
+		display: none;
+	}
+
+	@media (width >= 1000px) {
+		.can-container {
+			--_can-height: 582px;
+			display: block;
+			position: relative;
+			grid-row: 1 / -1;
+			grid-column: 1 / 2;
+			justify-self: end;
+			z-index: 5;
+			width: 100%;
+			max-width: calc(var(--stage-max) / 2);
+			pointer-events: none;
+		}
+
+		.can-sticky {
+			display: flex;
+			position: sticky;
+			top: 0;
+			justify-content: center;
+			align-items: center;
+			height: 100vh;
+		}
+
+		/*
+		 * Flex em vez de margin-inline:auto — quando a lata cresce além da
+		 * largura da coluna, justify-content:center faz ela transbordar dos
+		 * dois lados e continuar centrada (com auto, a margem zera e ela
+		 * escorrega para a esquerda).
+		 */
+		.can-picture {
+			display: flex;
+			position: relative;
+			justify-content: center;
+			width: 100%;
+		}
+
+		/*
+		 * Mesmo aspect do hero — o CanFlight escala o canvas inteiro até aqui.
+		 * Tamanho FIXO: a lata não cresce junto com o card laranja, ela já
+		 * chega grande (como na referência, onde a lata é uma imagem de 230px
+		 * contra um card de 360px = 64%, ultrapassando o card em cima e embaixo).
+		 *
+		 * A câmera 3D tem FOV vertical fixo, então a lata renderizada acompanha a
+		 * ALTURA do canvas, não a largura (a largura do canvas herda o aspect do
+		 * hero, que muda entre breakpoints). Por isso o box é quadrado: assim a
+		 * altura é sempre o lado limitante do scale do CanFlight e o canvas fica
+		 * exatamente com esta altura.
+		 *
+		 * Lata visível = 23,57% da altura do canvas (medido). Card = 48,913% da
+		 * coluna. 132,6% da coluna aqui ⇒ lata = 63,9% do card, em toda viewport.
+		 * O box transborda a coluna, mas é transparente e o .can-picture
+		 * centraliza via flex, então nada sai do lugar.
+		 */
+		.can-dock {
+			flex: 0 0 auto;
+			width: min(976px, 132.6%);
+			aspect-ratio: 1 / 1;
+		}
+	}
+
+	/* ——— Can mask ——— */
+	.can-mask-container {
+		display: none;
+	}
+
+	@media (width >= 1000px) {
+		.can-mask-container {
+			display: block;
+			position: relative;
+			grid-row: 1 / -1;
+			grid-column: 1 / 2;
+			justify-self: end;
+			z-index: 6;
+			width: 100%;
+			max-width: calc(var(--stage-max) / 2);
+			pointer-events: none;
+		}
+
+		.can-mask-sticky {
+			display: flex;
+			position: sticky;
+			top: 0;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			height: 100vh;
+		}
+
+		@media (width >= 1350px) {
+			.can-mask-sticky {
+				padding-block: 32px;
+			}
+		}
+
+		.can-mask-spacer {
+			flex-grow: 1;
+			visibility: hidden;
+			width: 100%;
+		}
+
+		.can-mask-square {
+			visibility: hidden;
+			width: 100%;
+			max-width: 360px;
+			height: 390px;
+			border-radius: 32px;
+			will-change: width, height, transform;
+		}
+
+		.can-mask {
+			position: relative;
+			flex-grow: 1;
+			width: 100%;
+		}
+
+		.can-mask::after {
+			content: '';
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			inset-inline-start: 0;
+			width: 100%;
+			background-color: var(--stage-bg);
+		}
+
+		@media (width >= 1350px) {
+			.can-mask::after {
+				bottom: -32px;
+			}
+		}
+	}
+
+	/* ——— Mobile can ——— */
+	.can-mobile {
+		grid-row-start: 1;
+		grid-column: 1;
+		display: flex;
+		justify-content: center;
+		padding: var(--space-xxxx-loose) var(--stage-sides) 0;
+		z-index: 3;
+	}
+
+	.can-mobile__card {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		width: min(100%, 360px);
+		aspect-ratio: 360 / 390;
+		border-radius: 16px;
+		background: var(--square-background, #3d4180);
+		overflow: visible;
+		transition: background-color 420ms cubic-bezier(0.22, 1, 0.36, 1);
+	}
+
+	.can-mobile__dock {
+		width: min(220px, 58%);
+		aspect-ratio: 720 / 880;
+	}
+
+	@media (width >= 1000px) {
+		.can-mobile {
+			display: none;
+		}
+	}
+
+	@media (width < 1000px) {
+		.product-stage__inner {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.can-mobile {
+			order: 0;
+		}
+
+		.benefits {
+			order: 1;
+		}
+
+		.ingredients {
+			order: 2;
+		}
+
+		.benefits__content,
+		.ingredients__content {
+			max-width: 40rem;
+		}
+
+		.ingredients__spacer {
+			display: none;
+		}
+	}
+
+	/* ——— Typography / content ——— */
+	.teaser {
+		display: flex;
+		flex-direction: column-reverse;
+		gap: var(--space-normal);
+		text-align: start;
+	}
+
+	.teaser__kicker {
+		margin: 0;
+		font-size: 1.0625rem;
+		font-weight: 700;
+		line-height: 1.4;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		color: var(--stage-text-subtle);
+	}
+
+	.teaser__title {
+		margin: 0;
+		font-family: var(--stage-display);
+		font-size: clamp(2.3125rem, 1.6463rem + 2.8049vw, 3.75rem);
+		font-weight: 800;
+		line-height: 1.07;
+		letter-spacing: -0.03em;
+		color: var(--stage-text);
+	}
+
+	.teaser__body {
+		margin-top: 24px;
+	}
+
+	.teaser__text {
+		margin: 0;
+		font-size: clamp(1.125rem, 1.0671rem + 0.2439vw, 1.25rem);
+		font-weight: 400;
+		line-height: 1.5;
+		color: var(--stage-text);
+	}
+
+	.benefits__list {
+		display: flex;
+		flex-direction: column;
+		row-gap: var(--space-x-loose);
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	@media (width >= 650px) {
+		.benefits__list {
+			row-gap: var(--space-xx-loose);
+		}
+	}
+
+	.benefits__item {
+		display: flex;
+		flex-direction: column;
+		row-gap: var(--space-x-tight);
+	}
+
+	.benefits__point-title {
+		margin: 0;
+		font-family: var(--stage-display);
+		font-size: clamp(1.375rem, 1.3171rem + 0.2439vw, 1.5rem);
+		font-weight: 800;
+		line-height: 1.33;
+		letter-spacing: -0.02em;
+		color: var(--stage-text);
+	}
+
+	.benefits__point-text {
+		margin: 0;
+		font-size: clamp(1.125rem, 1.0671rem + 0.2439vw, 1.25rem);
+		font-weight: 400;
+		line-height: 1.5;
+		color: var(--stage-text);
+	}
+
+	.product-sizes {
+		display: flex;
+		flex-direction: column;
+		flex-wrap: wrap;
+		align-items: flex-start;
+		gap: var(--space-normal);
+		width: fit-content;
+		margin-top: 24px;
+		padding: var(--space-normal);
+		border-radius: 12px;
+		background: var(--stage-surface);
+		box-shadow:
+			0px 8px 12px 0px #000f1e0a,
+			0px 2px 4px 0px #000f1e05;
+	}
+
+	@media (width >= 650px) {
+		.product-sizes {
+			flex-direction: row;
+			align-items: center;
+		}
+	}
+
+	.product-sizes__label {
+		display: flex;
+		align-items: center;
+		gap: var(--space-x-tight);
+		margin: 0;
+		font-size: 0.75rem;
+		line-height: 1.4;
+		color: var(--stage-text);
+	}
+
+	.product-sizes__label p {
+		margin: 0;
+	}
+
+	.product-sizes__icon {
+		width: 19px;
+		height: 19px;
+		flex-shrink: 0;
+		color: rgba(0, 15, 30, 0.45);
+	}
+
+	.product-sizes__list {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-x-tight);
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.product-sizes__badge {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-height: 28px;
+		padding: 4px 12px;
+		border-radius: 999px;
+		background: var(--stage-primary);
+		color: #fff;
+		font-size: 0.75rem;
+		font-weight: 600;
+		line-height: 1.2;
+		white-space: nowrap;
+	}
+
+	.ingredients__cta {
+		display: flex;
+		justify-content: flex-start;
+		margin-top: var(--space-xx-loose);
+	}
+
+	.ingredients__button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-height: 48px;
+		padding-inline: 32px;
+		border-radius: 999px;
+		background: var(--stage-primary);
+		color: #fff;
+		font-size: 1.0625rem;
+		font-weight: 700;
+		line-height: 1.2;
+		text-decoration: none;
+		transition:
+			background 180ms ease,
+			transform 180ms ease;
+	}
+
+	.ingredients__button:hover {
+		background: var(--stage-primary-darker);
+		transform: translateY(-1px);
+	}
+
+	.ingredients__button:focus-visible {
+		outline: 2px solid var(--stage-primary);
+		outline-offset: 3px;
+	}
+
+</style>

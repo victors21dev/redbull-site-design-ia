@@ -1,0 +1,18 @@
+---
+import Layout from '../layouts/Layout.astro';
+import RedBullExperience from '../components/hero/RedBullExperience';
+import BenefitsIngredients from '../components/product/BenefitsIngredients.astro';
+import WiiingsFinale from '../components/closing/WiiingsFinale';
+---
+
+<Layout title="Red Bull | Te dá asas">
+	<RedBullExperience client:only="react" />
+	<BenefitsIngredients />
+	<!--
+		A dobra do sabor vem DEPOIS de Benefits/Ingredients, mas precisa do sabor
+		ativo que vive no estado do RedBullExperience — então ela é renderizada
+		por portal aqui dentro, mantendo uma ilha React só.
+	-->
+	<div id="flavor-spotlight-slot"></div>
+	<WiiingsFinale client:visible />
+</Layout>

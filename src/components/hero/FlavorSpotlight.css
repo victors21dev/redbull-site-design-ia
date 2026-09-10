@@ -1,0 +1,124 @@
+.flavor-spotlight {
+	--spotlight-font-display: 'League Spartan', 'Montserrat', 'Arial Black', sans-serif;
+	--spotlight-ink: #f7f8f2;
+	--spotlight-accent: #3d4180;
+	--spotlight-distort: none;
+
+	position: relative;
+	width: 100%;
+	height: 100svh;
+	min-height: 720px;
+	isolation: isolate;
+	overflow: clip;
+	color: var(--spotlight-ink);
+	background-color: var(--spotlight-accent);
+}
+
+.flavor-spotlight__svg {
+	position: absolute;
+	width: 0;
+	height: 0;
+	overflow: hidden;
+	pointer-events: none;
+}
+
+.flavor-spotlight__pin {
+	position: relative;
+	z-index: 1;
+	display: grid;
+	place-items: center;
+	width: 100%;
+	height: 100%;
+	min-height: inherit;
+	overflow: hidden;
+}
+
+.flavor-spotlight__scenes {
+	position: absolute;
+	inset: -8%;
+	z-index: 0;
+	filter: var(--spotlight-distort);
+	transform: scale(1.12);
+	will-change: filter;
+}
+
+/* Cena do sabor — fade entre sabores; distorção no wrapper */
+.flavor-spotlight__scene {
+	position: absolute;
+	inset: 0;
+	background-color: var(--spotlight-accent);
+	background-image: var(--spotlight-scene);
+	background-position: center;
+	background-size: cover;
+	background-repeat: no-repeat;
+	opacity: 0;
+	transition: opacity 420ms ease;
+	will-change: opacity;
+}
+
+.flavor-spotlight.is-reduced-motion .flavor-spotlight__scenes {
+	filter: none;
+	inset: 0;
+	transform: none;
+	will-change: auto;
+}
+
+/* Sabor gigante — atrás da latinha */
+.flavor-spotlight__title {
+	position: absolute;
+	inset: 0;
+	z-index: 2;
+	display: grid;
+	place-items: center;
+	margin: 0;
+	padding-inline: clamp(12px, 3vw, 40px);
+	pointer-events: none;
+	user-select: none;
+}
+
+.flavor-spotlight__title-text {
+	grid-area: 1 / 1;
+	display: block;
+	max-width: 96vw;
+	font-family: var(--spotlight-font-display);
+	font-size: clamp(4.8rem, 15vw, 14rem);
+	font-weight: 900;
+	line-height: 0.86;
+	letter-spacing: -0.055em;
+	text-align: center;
+	text-transform: uppercase;
+	color: rgba(247, 248, 242, 0.9);
+	text-shadow:
+		0 0 48px color-mix(in srgb, var(--spotlight-accent) 40%, transparent),
+		0 22px 70px rgba(0, 0, 0, 0.32);
+	opacity: 0;
+	transition: opacity 380ms ease;
+	will-change: opacity;
+}
+
+.flavor-spotlight__dock {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	translate: -50% -50%;
+	z-index: 4;
+	height: 120svh;
+	aspect-ratio: 1;
+	pointer-events: none;
+}
+
+@media (width < 760px) {
+	.flavor-spotlight {
+		min-height: 640px;
+	}
+
+	.flavor-spotlight__title-text {
+		font-size: clamp(3.2rem, 17.5vw, 6.2rem);
+		line-height: 0.9;
+		letter-spacing: -0.04em;
+	}
+
+	.flavor-spotlight__dock {
+		height: 96svh;
+	}
+}
